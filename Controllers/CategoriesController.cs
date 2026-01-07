@@ -1,3 +1,4 @@
+using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
 using AutoMapper;
@@ -41,6 +42,34 @@ namespace ApiEcommerce.Controllers
 
             var categoryDto = _mapper.Map<CategoryDto>(category);
             return Ok(categoryDto);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult CreatedCategory([FromBody] CreateCategoryDto createCategoryDto)
+        {
+            if(createCategoryDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (_categoryRepository.CategoryExists(createCategoryDto.Name))
+            {
+                ModelState.AddModelError("CustomError", "Category already exists!");
+                return BadRequest(ModelState);
+            }
+
+            var category = _mapper.Map<Category>(createCategoryDto);
+            if (!_categoryRepository.CreateCategory(category))
+            {
+                ModelState.AddModelError("CustomError", $"Something went wrong when saving the record {category.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return CreatedAtRoute("GetCategory", new { id = category.Id }, category); // return 201
         }
     }
 }

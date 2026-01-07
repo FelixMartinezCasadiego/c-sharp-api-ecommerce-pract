@@ -35,8 +35,14 @@ Este comando aplica todas las migraciones pendientes a la base de datos configur
 ## Resumen de comandos principales
 
 - **Crear migración:**
+
   ```
   dotnet ef migrations add NombreDeLaMigracion
+  ```
+
+- **Eliminar migración:**
+  ```
+  dotnet ef migrations remove
   ```
 - **Actualizar base de datos:**
   ```

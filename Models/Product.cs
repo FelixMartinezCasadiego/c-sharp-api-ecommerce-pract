@@ -11,6 +11,7 @@ public class Product
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     [Range(0, double.MaxValue)]
+    [Column(TypeName = "decimal(18,2)")] // Specify precision and scale for decimal
     public decimal Price { get; set; }
     public string ImgUrl { get; set; } = string.Empty;
     [Required]
@@ -22,6 +23,6 @@ public class Product
 
      // * Foreign Key with Category
      public int CategoryId { get; set; } // Foreign Key Property
-     [ForeignKey("Id")] // Reference to Category's Primary Key
+     [ForeignKey("CategoryId")] // Reference to Category's Primary Key
      public required Category Category { get; set; } // Navigation Property
 }

@@ -25,5 +25,22 @@ namespace ApiEcommerce.Controllers
             }
             return Ok(categoriesDto);
         }
+
+        [HttpGet("{id:int}", Name = "GetCategory")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetCategory(int id)
+        {
+            var category = _categoryRepository.GetCategory(id);
+            if (category == null)
+            {
+                return NotFound($"Category with id {id} not found.");
+            }
+
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            return Ok(categoryDto);
+        }
     }
 }

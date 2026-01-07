@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var dbConnectionString = builder.Configuration.GetConnectionString("ConexionSql");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Dependency Injection
+builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Dependency Injection
 builder.Services.AddAutoMapper(cfg => { // AutoMapper configuration
     cfg.AddMaps(typeof(Program).Assembly);
 });

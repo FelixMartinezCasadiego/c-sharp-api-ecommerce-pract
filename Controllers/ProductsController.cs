@@ -22,5 +22,22 @@ namespace ApiEcommerce.Controllers
             
             return Ok(productsDto);
         }
+
+        [HttpGet("{id:int}", Name = "GetProduct")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetProduct(int id)
+        {
+            var product = _productRepository.GetProduct(id);
+            if (product == null)
+            {
+                return NotFound($"Product with id {id} not found.");
+            }
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            return Ok(productDto);
+        }
     }
 }

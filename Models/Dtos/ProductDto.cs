@@ -13,4 +13,5 @@ public class ProductDto
     public DateTime? UpdateDate { get; set; } = null;
 
      public int CategoryId { get; set; } // Foreign Key Property
+     public string CategoryName { get; set; } = string.Empty; // To show Category Name directly in ProductDto
 }

@@ -22,4 +22,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository/" />
+    <Folder Include="Repository/IRepository/" />
+  </ItemGroup>
+
 </Project>

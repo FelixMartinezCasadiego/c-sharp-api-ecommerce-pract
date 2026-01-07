@@ -1,3 +1,4 @@
+using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
 using AutoMapper;
@@ -7,9 +8,10 @@ namespace ApiEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IProductRepository productRepository, IMapper mapper) : ControllerBase
+    public class ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository, IMapper mapper) : ControllerBase
     {
         private readonly IProductRepository _productRepository = productRepository;
+        private readonly ICategoryRepository _categoryRepository = categoryRepository;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -23,21 +25,55 @@ namespace ApiEcommerce.Controllers
             return Ok(productsDto);
         }
 
-        [HttpGet("{id:int}", Name = "GetProduct")]
+        [HttpGet("{ProductId:int}", Name = "GetProduct")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetProduct(int id)
+        public IActionResult GetProduct(int ProductId)
         {
-            var product = _productRepository.GetProduct(id);
+            var product = _productRepository.GetProduct(ProductId);
             if (product == null)
             {
-                return NotFound($"Product with id {id} not found.");
+                return NotFound($"Product with id {ProductId} not found.");
             }
 
             var productDto = _mapper.Map<ProductDto>(product);
             return Ok(productDto);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult CreatedProduct([FromBody] CreateProductDto createProductDto)
+        {
+            if(createProductDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (_productRepository.ProductExists(createProductDto.Name))
+            {
+                ModelState.AddModelError("CustomError", "Product already exists!");
+                return BadRequest(ModelState);
+            }
+
+            if (!_categoryRepository.CategoryExists(createProductDto.CategoryId))
+            {
+                ModelState.AddModelError("CustomError", "Category does not exist!");
+                return BadRequest(ModelState);
+            }
+
+            var product = _mapper.Map<Product>(createProductDto);
+            if (!_productRepository.CreateProduct(product))
+            {
+                ModelState.AddModelError("CustomError", $"Something went wrong when saving the record {product.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return CreatedAtRoute("GetProduct", new { productId = product.ProductId }, product); // return 201
         }
     }
 }

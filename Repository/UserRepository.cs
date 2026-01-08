@@ -27,8 +27,19 @@ public class UserRepository(ApplicationDbContext db) : IUserRepository
         throw new NotImplementedException();
     }
 
-    public Task<User> Register(CreateUserDto createUserDto)
+    public async Task<User> Register(CreateUserDto createUserDto)
     {
-        throw new NotImplementedException();
+        var encriptedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
+        var user = new User
+        {
+            Name = createUserDto.Name,
+            Username = createUserDto.Username ?? "No Username",
+            Password = encriptedPassword,
+            Role = createUserDto.Role
+        };
+        
+        await _db.Users.AddAsync(user);
+        await _db.SaveChangesAsync();
+        return user;
     }
 }

@@ -10,6 +10,7 @@ var dbConnectionString = builder.Configuration.GetConnectionString("ConexionSql"
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Dependency Injection
 builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Dependency Injection
+builder.Services.AddScoped<IUserRepository, UserRepository>(); // Dependency Injection
 builder.Services.AddAutoMapper(cfg => { // AutoMapper configuration
     cfg.AddMaps(typeof(Program).Assembly);
 });

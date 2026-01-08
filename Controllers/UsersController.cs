@@ -34,9 +34,43 @@ namespace ApiEcommerce.Controllers
             {
                 return NotFound();
             }
-            
+
             var userDto = _mapper.Map<UserDto>(user);
             return Ok(userDto);
+        }
+
+        [HttpPost(Name = "RegisterUser")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RegisterUser([FromBody] CreateUserDto createUserDto)
+        {
+            if(createUserDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if(string.IsNullOrWhiteSpace(createUserDto.Username))
+            {
+                return BadRequest("Username is required");
+            }
+
+            if (!_userRepository.IsUniqueUser(createUserDto.Username))
+            {
+                ModelState.AddModelError("CustomError", "Username already exists!");
+                return BadRequest(ModelState);
+            }
+
+            var result = await _userRepository.Register(createUserDto);
+            if (result == null) 
+            {
+                ModelState.AddModelError("CustomError", "Error while registering user");
+                return StatusCode(StatusCodes.Status500InternalServerError, ModelState);
+            }
+
+            return CreatedAtRoute("GetUser", new { id = result.Id }, result);
         }
     }
 }

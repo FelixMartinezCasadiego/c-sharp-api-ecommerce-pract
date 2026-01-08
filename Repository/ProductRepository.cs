@@ -91,9 +91,9 @@ public class ProductRepository(ApplicationDbContext db) : IProductRepository
         return _db.SaveChanges() >= 0; // Returns true if one or more entities were changed
     }
 
-    public ICollection<Product> SearchProduct(string name)
+    public ICollection<Product> SearchProducts(string searchTerm)
     {
-        // if(string.IsNullOrWhiteSpace(name))
+        // if(string.IsNullOrWhiteSpace(searchTerm))
         // {
         //     return [];
         // }
@@ -103,9 +103,14 @@ public class ProductRepository(ApplicationDbContext db) : IProductRepository
         //     .ToList();
 
         IQueryable<Product> query = _db.Products;
-        if(!string.IsNullOrWhiteSpace(name))
+        
+        var searchTermLowered = searchTerm.ToLower().Trim();
+
+        if(!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(p => p.Name.ToLower().Trim() == name.ToLower().Trim());
+            query = query.Include(p => p.Category).Where(
+                p => p.Name.ToLower().Trim().Contains(searchTermLowered) ||
+                p.Description.ToLower().Trim().Contains(searchTermLowered));
         }
         return query.OrderBy(p => p.Name).ToList();
     }

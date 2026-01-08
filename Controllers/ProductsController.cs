@@ -175,5 +175,32 @@ namespace ApiEcommerce.Controllers
 
             return NoContent(); // return 204
         }
+
+        [HttpDelete("{ProductId:int}", Name = "DeleteProduct")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult DeleteProduct(int ProductId)
+        {
+            if (ProductId == 0)
+            {
+                return BadRequest("Invalid product id.");
+            }
+
+            var product = _productRepository.GetProduct(ProductId);
+            if (product == null)
+            {
+                return NotFound($"Product with id {ProductId} not found.");
+            }
+
+            if (!_productRepository.DeleteProduct(product))
+            {
+                ModelState.AddModelError("CustomError", $"Something went wrong when deleting the record {product.Name}");
+                return StatusCode(500, ModelState);
+            }
+            
+            return NoContent(); // return 204           
+        }
     }
 }

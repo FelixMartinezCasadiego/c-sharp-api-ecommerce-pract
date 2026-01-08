@@ -12,7 +12,7 @@ namespace ApiEcommerce.Repository;
 public class UserRepository(ApplicationDbContext db, IConfiguration configuration) : IUserRepository
 {
     private readonly ApplicationDbContext _db = db;
-    private string? secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+    private readonly string? secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
     public User? GetUser(int id)
     {
         return _db.Users.FirstOrDefault(u => u.Id == id);

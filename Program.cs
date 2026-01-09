@@ -38,7 +38,7 @@ builder.Services.AddAuthentication(options => // Authentication configuration
         ValidateIssuerSigningKey = true, // Validate issuer signing key
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)), // Set issuer signing key
         ValidateIssuer = false, // Disable issuer validation
-        ValidateAudience = true, // Enable audience validation
+        ValidateAudience = false, // Disable audience validation
     };
     options.Authority = builder.Configuration["Auth0:Domain"]; // Set authority from configuration
     options.Audience = builder.Configuration["Auth0:Audience"]; // Set audience from configuration

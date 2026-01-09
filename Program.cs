@@ -1,3 +1,4 @@
+using ApiEcommerce.Constants;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options => // CORS configuration
 {
-    options.AddPolicy("AllowSpecificOrigin", builder => // CORS policy
+    options.AddPolicy(PolicyNames.AllowSpecificOrigin, builder => // CORS policy
     {
         builder.WithOrigins("*") // Allow any origin
                .AllowAnyMethod() // Allow any method
@@ -42,7 +43,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin"); // Use CORS policy
+app.UseCors(PolicyNames.AllowSpecificOrigin); // Use CORS policy
 
 app.UseAuthorization();
 

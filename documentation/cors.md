@@ -42,3 +42,23 @@ app.UseCors("AllowSpecificOrigin"); // Aplicación de la política CORS
 Esta configuración es útil en entornos de desarrollo o cuando se desea exponer la API a múltiples orígenes. En producción, se recomienda restringir los orígenes permitidos para mejorar la seguridad.
 
 ## Referencias
+
+## Uso de CORS en los Controllers
+
+Además de la configuración global, es posible habilitar CORS de manera específica en controladores o acciones usando el atributo `[EnableCors]`. Esto permite aplicar políticas de CORS solo a ciertos endpoints.
+
+### Ejemplo en un Controller
+
+```csharp
+using Microsoft.AspNetCore.Cors;
+
+[EnableCors(PolicyNames.AllowSpecificOrigin)] // Habilita CORS solo para este controlador o acción
+public class CategoriesController : ControllerBase
+{
+    // ...acciones del controlador...
+}
+```
+
+En este ejemplo, el atributo `[EnableCors(PolicyNames.AllowSpecificOrigin)]` indica que el controlador `CategoriesController` permite solicitudes CORS según la política definida, independientemente de la configuración global. Esto es útil cuando se requiere un control más granular sobre qué endpoints exponen CORS.
+
+Puedes aplicar este atributo a nivel de clase (controlador) o a nivel de método (acción) según la necesidad.

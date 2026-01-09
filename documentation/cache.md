@@ -62,6 +62,40 @@ public IActionResult Get()
 }
 ```
 
+#### Uso de CacheProfileName
+
+En este proyecto también se utilizan perfiles de cache nombrados, configurados en Program.cs. Esto permite reutilizar configuraciones de cache en diferentes acciones o controladores usando el atributo `CacheProfileName`.
+
+Por ejemplo, en el controlador `CategoriesController`:
+
+```csharp
+[ResponseCache(CacheProfileName = "Default10")]
+public IActionResult GetCategory(int id)
+{
+	// ...código...
+}
+```
+
+### Configuración de perfiles de cache en Program.cs
+
+En el archivo Program.cs, los perfiles de cache se configuran así:
+
+```csharp
+builder.Services.AddControllers(options =>
+{
+	options.CacheProfiles.Add("Default10", new CacheProfile()
+	{
+		Duration = 10
+	});
+	options.CacheProfiles.Add("Default20", new CacheProfile()
+	{
+		Duration = 20
+	});
+});
+```
+
+Esto permite usar `CacheProfileName = "Default10"` o `CacheProfileName = "Default20"` en los atributos `[ResponseCache]` de tus acciones, facilitando la gestión centralizada de la configuración de cache.
+
 ### Activación del middleware
 
 No olvides agregar la línea `app.UseResponseCaching();` en la configuración del pipeline de la aplicación (en Program.cs) para activar el middleware de cache.

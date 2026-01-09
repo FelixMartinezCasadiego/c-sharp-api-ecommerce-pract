@@ -36,7 +36,8 @@ namespace ApiEcommerce.Controllers
 
         [AllowAnonymous] // Allow anonymous access to this action
         [HttpGet("{id:int}", Name = "GetCategory")]
-        [ResponseCache(Duration = 10)] // Cache response for 10 seconds
+        [ResponseCache(CacheProfileName = "Default10")] // Use cache profile
+        // [ResponseCache(Duration = 10)] // Cache response for 10 seconds
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -46,7 +47,7 @@ namespace ApiEcommerce.Controllers
             Console.WriteLine($"Fetching category with id {id}"); // Logging for demonstration
             var category = _categoryRepository.GetCategory(id);
             Console.WriteLine($"Response with ID: {id}"); // Logging for demonstration
-            
+
             if (category == null)
             {
                 return NotFound($"Category with id {id} not found.");

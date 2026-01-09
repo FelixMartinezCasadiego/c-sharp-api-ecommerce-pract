@@ -3,6 +3,7 @@ using ApiEcommerce.Constants;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -52,7 +53,17 @@ builder.Services.AddAuthentication(options => // Authentication configuration
     options.Audience = builder.Configuration["Auth0:Audience"]; // Set audience from configuration
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.CacheProfiles.Add("Default10", new CacheProfile()
+    {
+        Duration = 10
+    });
+    options.CacheProfiles.Add("Default20", new CacheProfile()
+    {
+        Duration = 20
+    });
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

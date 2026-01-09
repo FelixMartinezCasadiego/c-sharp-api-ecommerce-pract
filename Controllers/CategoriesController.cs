@@ -18,6 +18,7 @@ namespace ApiEcommerce.Controllers
         private readonly ICategoryRepository _categoryRepository = categoryRepository;
         private readonly IMapper _mapper = mapper;
 
+        [AllowAnonymous] // Allow anonymous access to this action
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,6 +34,7 @@ namespace ApiEcommerce.Controllers
             return Ok(categoriesDto);
         }
 
+        [AllowAnonymous] // Allow anonymous access to this action
         [HttpGet("{id:int}", Name = "GetCategory")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

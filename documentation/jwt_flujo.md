@@ -75,6 +75,28 @@ builder.Services.AddAuthentication(options =>
 - Al configurar la autenticación JWT, los endpoints de la API pueden ser protegidos usando el atributo `[Authorize]` en los controladores o acciones.
 - Solo los usuarios que presenten un token JWT válido podrán acceder a las rutas protegidas.
 
+## Permitir acceso anónimo con [AllowAnonymous]
+
+En algunos casos, es necesario que ciertos endpoints sean accesibles sin autenticación, incluso si el controlador está protegido con `[Authorize]`. Para esto se utiliza el atributo `[AllowAnonymous]`.
+
+### Ejemplo de uso
+
+```csharp
+[Authorize] // Protege todo el controlador
+public class CategoriesController : ControllerBase
+{
+    [AllowAnonymous] // Permite acceso sin autenticación a esta acción
+    [HttpGet]
+    public IActionResult GetCategories() { /* ... */ }
+    // ...otras acciones protegidas...
+}
+```
+
+### Explicación
+
+- `[AllowAnonymous]` anula la protección de `[Authorize]` solo para la acción o controlador donde se aplica, permitiendo el acceso a usuarios no autenticados.
+- Es útil para exponer endpoints públicos (por ejemplo, listados públicos, login, registro) mientras se mantiene la protección en el resto de la API.
+
 ## Ventajas de usar JWT
 
 - Permite la autenticación sin estado (stateless), ideal para APIs REST.

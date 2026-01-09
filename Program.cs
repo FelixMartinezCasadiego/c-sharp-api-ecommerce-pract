@@ -1,7 +1,10 @@
+using System.Text;
 using ApiEcommerce.Constants;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +17,31 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Dependen
 builder.Services.AddScoped<IUserRepository, UserRepository>(); // Dependency Injection
 builder.Services.AddAutoMapper(cfg => { // AutoMapper configuration
     cfg.AddMaps(typeof(Program).Assembly);
+});
+
+var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey"); // Get secret key from configuration
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("Secret key not found in configuration.");
+}
+
+builder.Services.AddAuthentication(options => // Authentication configuration
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Set default authentication scheme
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Set default challenge scheme
+}).AddJwtBearer(options => // JWT Bearer configuration
+{
+    options.RequireHttpsMetadata = false; // Disable HTTPS metadata requirement
+    options.SaveToken = true; // Save token
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true, // Validate issuer signing key
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)), // Set issuer signing key
+        ValidateIssuer = false, // Disable issuer validation
+        ValidateAudience = true, // Enable audience validation
+    };
+    options.Authority = builder.Configuration["Auth0:Domain"]; // Set authority from configuration
+    options.Audience = builder.Configuration["Auth0:Audience"]; // Set audience from configuration
 });
 
 builder.Services.AddControllers();

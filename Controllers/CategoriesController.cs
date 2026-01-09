@@ -36,7 +36,7 @@ namespace ApiEcommerce.Controllers
 
         [AllowAnonymous] // Allow anonymous access to this action
         [HttpGet("{id:int}", Name = "GetCategory")]
-        [ResponseCache(CacheProfileName = "Default10")] // Use cache profile
+        [ResponseCache(CacheProfileName = CacheProfiles.Default10)] // Use cache profile
         // [ResponseCache(Duration = 10)] // Cache response for 10 seconds
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

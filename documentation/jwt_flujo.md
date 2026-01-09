@@ -75,6 +75,26 @@ builder.Services.AddAuthentication(options =>
 - Al configurar la autenticación JWT, los endpoints de la API pueden ser protegidos usando el atributo `[Authorize]` en los controladores o acciones.
 - Solo los usuarios que presenten un token JWT válido podrán acceder a las rutas protegidas.
 
+## Protección por roles con [Authorize(Roles = "Admin")]
+
+Además de proteger rutas con autenticación, es posible restringir el acceso a ciertos endpoints solo a usuarios con roles específicos usando `[Authorize(Roles = "Admin")]`.
+
+### Ejemplo de uso
+
+```csharp
+[Authorize(Roles = "Admin")]
+public IActionResult DeleteUser(int id)
+{
+    // Solo los usuarios con el rol "Admin" pueden acceder a esta acción
+}
+```
+
+### Explicación
+
+- El atributo `[Authorize(Roles = "Admin")]` indica que solo los usuarios autenticados cuyo token JWT contenga el rol "Admin" podrán acceder a ese controlador o acción.
+- Puedes especificar varios roles separados por coma: `[Authorize(Roles = "Admin,Manager")]`.
+- Es útil para implementar control de acceso basado en roles (RBAC) y proteger operaciones sensibles o administrativas.
+
 ## Permitir acceso anónimo con [AllowAnonymous]
 
 En algunos casos, es necesario que ciertos endpoints sean accesibles sin autenticación, incluso si el controlador está protegido con `[Authorize]`. Para esto se utiliza el atributo `[AllowAnonymous]`.

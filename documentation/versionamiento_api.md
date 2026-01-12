@@ -78,6 +78,31 @@ Estos son los enfoques más comunes para versionar una API, permitiendo flexibil
    ```
 3. Decorar los controladores:
 
+```csharp
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+public class CategoriesController : ControllerBase
+{
+   // Acción para la versión 1.0
+   [HttpGet]
+   [MapToApiVersion("1.0")]
+   public IActionResult GetCategories() { /* ... */ }
+
+   // Acción para la versión 2.0
+   [HttpGet]
+   [MapToApiVersion("2.0")]
+   public IActionResult GetCategoriesOrderById() { /* ... */ }
+   // ...otras acciones...
+}
+```
+
+#### Explicación de los atributos de versionado en el controlador
+
+- `[ApiVersion("1.0")]` y `[ApiVersion("2.0")]`: Indican que el controlador responde a las versiones 1.0 y 2.0 de la API.
+- `[Route("api/v{version:apiVersion}/[controller]")]`: Define la ruta para incluir la versión en la URL.
+- `[MapToApiVersion("1.0")]` y `[MapToApiVersion("2.0")]`: Permiten mapear acciones específicas a una versión determinada de la API, facilitando la evolución de los endpoints sin romper compatibilidad con versiones anteriores.
+
 #### ¿Para qué se usa AddApiExplorer?
 
 El método `AddApiExplorer` permite que las herramientas de documentación como Swagger/OpenAPI reconozcan y agrupen los endpoints según la versión de la API. Esto facilita la visualización y prueba de diferentes versiones desde la interfaz de Swagger, mostrando cada versión como un grupo separado y permitiendo probar rutas como `/api/v1/productos` o `/api/v2/productos` de forma independiente.

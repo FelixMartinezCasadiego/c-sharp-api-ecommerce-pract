@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ApiEcommerce.Controllers
+namespace ApiEcommerce.Controllers.V2
 {
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiController]
     [Authorize(Roles = "Admin")]
@@ -20,23 +19,6 @@ namespace ApiEcommerce.Controllers
     {
         private readonly ICategoryRepository _categoryRepository = categoryRepository;
         private readonly IMapper _mapper = mapper;
-
-        [AllowAnonymous] // Allow anonymous access to this action
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        // [EnableCors(PolicyNames.AllowSpecificOrigin)] // Enable CORS for this action
-        [MapToApiVersion("1.0")] // Map to API version 1.0
-        public IActionResult GetCategories()
-        {
-            var categories = _categoryRepository.GetCategories();
-            var categoriesDto = new List<CategoryDto>();
-            foreach (var category in categories)
-            {
-                categoriesDto.Add(_mapper.Map<CategoryDto>(category));
-            }
-            return Ok(categoriesDto);
-        }
      
         [AllowAnonymous] // Allow anonymous access to this action
         [HttpGet]

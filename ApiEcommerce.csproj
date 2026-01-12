@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Constants/" />
-    <Folder Include="Controllers/" />
+    <Folder Include="Controllers/V2/" />
     <Folder Include="Mapping/" />
     <Folder Include="Repository/" />
     <Folder Include="Repository/IRepository/" />

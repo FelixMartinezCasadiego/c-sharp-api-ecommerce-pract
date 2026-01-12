@@ -1,3 +1,48 @@
+### Documentación de la API con Swagger/OpenAPI
+
+Para documentar y visualizar la API y sus versiones, se utiliza Swagger/OpenAPI. En el archivo `Program.cs` se configura el generador de documentación con:
+
+```csharp
+builder.Services.AddSwaggerGen(options =>
+{
+   options.SwaggerDoc("v1", new OpenApiInfo // Configuración del documento Swagger
+   {
+      Version = "v1",
+      Title = "Ecommerce API",
+      Description = "An ASP.NET Core Web API for Ecommerce",
+      TermsOfService = new Uri("https://example.com/terms"),
+      Contact = new OpenApiContact
+      {
+         Name = "Your Name",
+         Url = new Uri("https://yourwebsite.com"),
+      },
+      License = new OpenApiLicense
+      {
+         Name = "Use under LICX",
+         Url = new Uri("https://example.com/license"),
+      }
+   });
+});
+
+```
+
+Esta configuración permite:
+
+- Generar una interfaz interactiva para probar los endpoints de la API.
+- Documentar información relevante como versión, título, descripción, términos de servicio, contacto y licencia.
+- Visualizar y probar diferentes versiones de la API si se usa junto con el versionado y el ApiExplorer.
+
+Para habilitar la visualización de la documentación generada, en el pipeline de la aplicación se utiliza:
+
+```csharp
+app.UseSwaggerUI(options =>
+{
+   options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API V1"); // Swagger endpoint
+});
+```
+
+Esto permite acceder a la interfaz de Swagger UI en tiempo de desarrollo, donde se puede explorar y probar los endpoints de la API de manera visual e interactiva.
+
 # Versionamiento de APIs en .NET
 
 ## ¿Qué es el versionamiento de APIs?

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,7 +61,57 @@ builder.Services.AddControllers(options =>
     options.CacheProfiles.Add(CacheProfiles.Default20, CacheProfiles.Profile20);
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+      Description = "Nuestra API utiliza la Autenticación JWT usando el esquema Bearer. \n\r\n\r" +
+                    "Ingresa la palabra a continuación el token generado en login.\n\r\n\r" +
+                    "Ejemplo: \"12345abcdef\"",
+      Name = "Authorization",
+      In = ParameterLocation.Header,
+      Type = SecuritySchemeType.Http,
+      Scheme = "Bearer"
+    });
+
+    options.SwaggerDoc("v1", new OpenApiInfo // Swagger document configuration
+    { 
+        Version = "v1", 
+        Title = "Ecommerce API", 
+        Description = "An ASP.NET Core Web API for Ecommerce",
+        TermsOfService = new Uri("https://example.com/terms"), 
+        Contact = new OpenApiContact
+        {
+            Name = "Your Name", 
+            Url = new Uri("https://yourwebsite.com"),
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Use under LICX", 
+            Url = new Uri("https://example.com/license"),
+        }
+    });
+    
+    options.SwaggerDoc("v2", new OpenApiInfo // Swagger document configuration
+    { 
+        Version = "v2", 
+        Title = "Ecommerce API", 
+        Description = "An ASP.NET Core Web API for Ecommerce",
+        TermsOfService = new Uri("https://example.com/terms"), 
+        Contact = new OpenApiContact
+        {
+            Name = "Your Name", 
+            Url = new Uri("https://yourwebsite.com"),
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Use under LICX", 
+            Url = new Uri("https://example.com/license"),
+        }
+    });
+
+
+});
 
 builder.Services.AddCors(options => // CORS configuration
 {
@@ -77,7 +128,7 @@ var apiVersioingBuilder = builder.Services.AddApiVersioning(options => // API ve
     options.AssumeDefaultVersionWhenUnspecified = true; // Assume default version when unspecified
     options.DefaultApiVersion = new ApiVersion(1, 0); // Set default API version
     options.ReportApiVersions = true; // Report API versions
-    options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version")); // Read API version from query string
+    // options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version")); // Read API version from query string
 });
 
 apiVersioingBuilder.AddApiExplorer(options => // API explorer configuration
@@ -92,7 +143,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API V1"); // Swagger endpoint
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Ecommerce API V2"); // Swagger endpoint
+    });
+
     app.MapOpenApi().AllowAnonymous();
     app.MapScalarApiReference();
 }

@@ -160,3 +160,27 @@ public class ProductosController : ControllerBase
     // ...
 }
 ```
+
+---
+
+## Uso del atributo [Obsolete] en endpoints versionados
+
+Cuando se introduce una nueva versión de un endpoint y se desea advertir a los desarrolladores que una versión anterior está obsoleta, se puede utilizar el atributo `[Obsolete]` en el método correspondiente del controlador. Esto genera una advertencia en tiempo de compilación y ayuda a guiar la migración hacia el nuevo endpoint.
+
+**Ejemplo:**
+
+```csharp
+[Obsolete("This endpoint is deprecated. Use GetCategoriesV2.")]
+public IActionResult GetCategories()
+```
+
+**Ventajas:**
+
+- Advierte a los desarrolladores sobre el uso de métodos obsoletos.
+- Facilita la transición hacia nuevas versiones de la API.
+- Mejora la mantenibilidad y la comunicación sobre cambios futuros.
+
+**Recomendación:**
+Si encuentras el atributo `[Obsolete]` en un endpoint, consulta la documentación o el controlador de la versión siguiente para encontrar el método recomendado.
+
+Más información en [obsolete.md](obsolete.md).

@@ -4,15 +4,27 @@ using System.Text;
 using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ApiEcommerce.Repository;
 
-public class UserRepository(ApplicationDbContext db, IConfiguration configuration) : IUserRepository
+public class UserRepository(
+    ApplicationDbContext db, 
+    IConfiguration configuration, 
+    UserManager<ApplicationUser> userManager,
+    UserManager<IdentityRole> roleManager,
+    IMapper mapper
+) : IUserRepository
 {
     private readonly ApplicationDbContext _db = db;
     private readonly string? secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+    private readonly UserManager<ApplicationUser> _userManager = userManager; 
+    private readonly UserManager<IdentityRole> _roleManager = roleManager;
+    private readonly IMapper _mapper = mapper;
+
     public User? GetUser(int id)
     {
         return _db.Users.FirstOrDefault(u => u.Id == id);
@@ -35,14 +47,22 @@ public class UserRepository(ApplicationDbContext db, IConfiguration configuratio
             return new UserLoginResponseDto { Token = "", User = null, Message = "Invalid username is required" };
         }
 
-        var user = await _db.Users.FirstOrDefaultAsync(user => user.Username.ToLower().Trim() == userLoginDto.Username.ToLower().Trim());
+        var user = await _db.ApplicationUsers.FirstOrDefaultAsync<ApplicationUser>(user => user.UserName != null && user.UserName.ToLower().Trim() == userLoginDto.Username.ToLower().Trim());
 
         if (user == null)
         {
             return new UserLoginResponseDto { Token = "", User = null, Message = "Invalid username" };
         }
 
-        if(!BCrypt.Net.BCrypt.Verify(userLoginDto.Password, user.Password))
+        if (userLoginDto.Password == null)
+        {
+            return new UserLoginResponseDto { Token = "", User = null, Message = "Invalid password is required" };
+        }
+
+        bool isValid = await _userManager.CheckPasswordAsync(user, userLoginDto.Password);
+
+        // if(!BCrypt.Net.BCrypt.Verify(userLoginDto.Password, user.Password))
+        if(!isValid)
         {
             return new UserLoginResponseDto { Token = "", User = null, Message = "Invalid password" };
         }
@@ -55,14 +75,16 @@ public class UserRepository(ApplicationDbContext db, IConfiguration configuratio
             throw new InvalidOperationException("Secret key is not configured.");
         }
 
+        var roles = await _userManager.GetRolesAsync(user);
+
         var key = Encoding.UTF8.GetBytes(secretKey);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(
             [
                 new Claim("id", user.Id.ToString()),
-                new Claim("username", user.Username),
-                new Claim(ClaimTypes.Role, user.Role ?? string.Empty)
+                new Claim("username", user.UserName ?? string.Empty),
+                new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? string.Empty)
             ]),
             Expires = DateTime.UtcNow.AddHours(2),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -73,13 +95,8 @@ public class UserRepository(ApplicationDbContext db, IConfiguration configuratio
         return new UserLoginResponseDto
         {
             Token = handlerToken.WriteToken(token),
-            User = new UserRegisterDto()
-            {
-                Username = user.Username,
-                Name = user.Name,
-                Role = user.Role,
-                Password = user.Password ?? string.Empty
-            },
+            // User = new UserRegisterDto()
+            User = _mapper.Map<UserDataDto>(user),
             Message = "Login successful"
         };
     }

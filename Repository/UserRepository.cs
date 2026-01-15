@@ -15,14 +15,14 @@ public class UserRepository(
     ApplicationDbContext db, 
     IConfiguration configuration, 
     UserManager<ApplicationUser> userManager,
-    UserManager<IdentityRole> roleManager,
+    RoleManager<IdentityRole> roleManager,
     IMapper mapper
 ) : IUserRepository
 {
     private readonly ApplicationDbContext _db = db;
     private readonly string? secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
     private readonly UserManager<ApplicationUser> _userManager = userManager; 
-    private readonly UserManager<IdentityRole> _roleManager = roleManager;
+    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
     private readonly IMapper _mapper = mapper;
 
     public User? GetUser(int id)
@@ -101,19 +101,59 @@ public class UserRepository(
         };
     }
 
-    public async Task<User> Register(CreateUserDto createUserDto)
+    public async Task<UserDataDto> Register(CreateUserDto createUserDto)
     {
-        var encriptedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
-        var user = new User
+
+        if (string.IsNullOrEmpty(createUserDto.Username))
         {
-            Name = createUserDto.Name,
-            Username = createUserDto.Username ?? "No Username",
-            Password = encriptedPassword,
-            Role = createUserDto.Role
+            throw new ArgumentException("Invalid username is required");
+        }
+
+        if (createUserDto.Password == null)
+        {
+            throw new ArgumentException("Invalid password is required");
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = createUserDto.Username,
+            Email = createUserDto.Username,
+            NormalizedEmail = createUserDto.Username.ToUpper(),
+            Name = createUserDto.Name
         };
+
+        var result = await _userManager.CreateAsync(user, createUserDto.Password);
+        if (result.Succeeded)
+        {
+            var userRole = createUserDto.Role ?? "User";
+
+            var roleExists = await _roleManager.RoleExistsAsync(userRole);
+            if (!roleExists)
+            {
+                var identityRole = new IdentityRole(userRole);
+                await _roleManager.CreateAsync(identityRole);
+            }
+
+            await _userManager.AddToRoleAsync(user, userRole);
+            
+            var createdUser = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == createUserDto.Username);
+
+            return _mapper.Map<UserDataDto>(createdUser);
+        }
+
+        throw new Exception("User registration failed: " + string.Join(", ", result.Errors.Select(e =>      e.Description)));
+
+        // var encriptedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
+        // var user = new User
+        // {
+        //     Name = createUserDto.Name,
+        //     Username = createUserDto.Username ?? "No Username",
+        //     Password = encriptedPassword,
+        //     Role = createUserDto.Role
+        // };
         
-        await _db.Users.AddAsync(user);
-        await _db.SaveChangesAsync();
-        return user;
+        // await _db.Users.AddAsync(user);
+        // await _db.SaveChangesAsync();
+        // return user;
     }
 }

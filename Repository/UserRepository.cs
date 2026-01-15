@@ -25,19 +25,19 @@ public class UserRepository(
     private readonly RoleManager<IdentityRole> _roleManager = roleManager;
     private readonly IMapper _mapper = mapper;
 
-    public User? GetUser(int id)
+    public ApplicationUser? GetUser(string id)
     {
-        return _db.Users.FirstOrDefault(u => u.Id == id);
+        return _db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
     }
 
-    public ICollection<User> GetUsers()
+    public ICollection<ApplicationUser> GetUsers()
     {
-        return _db.Users.OrderBy(u => u.Username).ToList();
+        return _db.ApplicationUsers.OrderBy(u => u.UserName).ToList();
     }
 
     public bool IsUniqueUser(string username)
     {
-        return !_db.Users.Any(u => u.Username.ToLower().Trim() == username.ToLower().Trim());   
+        return !_db.ApplicationUsers.Any(u => u.UserName.ToLower().Trim() == username.ToLower().Trim());   
     }
 
     public async Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
@@ -141,7 +141,8 @@ public class UserRepository(
             return _mapper.Map<UserDataDto>(createdUser);
         }
 
-        throw new Exception("User registration failed: " + string.Join(", ", result.Errors.Select(e =>      e.Description)));
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        throw new Exception("User registration failed: " + errors);
 
         // var encriptedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
         // var user = new User

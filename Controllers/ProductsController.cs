@@ -54,7 +54,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreatedProduct([FromBody] CreateProductDto createProductDto)
+        public IActionResult CreatedProduct([FromForm] CreateProductDto createProductDto)
         {
             if(createProductDto == null)
             {
@@ -178,7 +178,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UpdateProduct(int productId, [FromBody] UpdateProductDto updateProductDto)
+        public IActionResult UpdateProduct(int productId, [FromForm] UpdateProductDto updateProductDto)
         {
             if(updateProductDto == null)
             {
@@ -199,6 +199,33 @@ namespace ApiEcommerce.Controllers
 
             var product = _mapper.Map<Product>(updateProductDto);
             product.ProductId = productId;
+
+            // * Update image
+            if(updateProductDto.Image != null)
+            {
+                string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(updateProductDto.Image.FileName);
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+                if (!Directory.Exists(imagesFolder))
+                {
+                    Directory.CreateDirectory(imagesFolder);
+                }
+
+                var filePath = Path.Combine(imagesFolder, fileName);
+                FileInfo file = new(filePath);
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
+                using var fileStream = new FileStream(filePath, FileMode.Create); // Create the file
+                updateProductDto.Image.CopyTo(fileStream); // Copy the uploaded image to the file stream
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}"; // Get the base URL of the request
+                product.ImgUrl = $"{baseUrl}/ProductsImages/{fileName}"; // Set the ImgUrl property
+                product.ImgUrlLocal = filePath; // Set the local file path
+            } else
+            {
+                product.ImgUrl = "https://placehold.co/600x400"; 
+            }
+
             if (!_productRepository.UpdateProduct(product))
             {
                 ModelState.AddModelError("CustomError", $"Something went wrong when updating the record {product.Name}");

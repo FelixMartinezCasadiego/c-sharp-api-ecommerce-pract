@@ -77,24 +77,7 @@ namespace ApiEcommerce.Controllers
             // * Add image
             if(createProductDto.Image != null)
             {
-                string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(createProductDto.Image.FileName);
-                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
-                if (!Directory.Exists(imagesFolder))
-                {
-                    Directory.CreateDirectory(imagesFolder);
-                }
-
-                var filePath = Path.Combine(imagesFolder, fileName);
-                FileInfo file = new(filePath);
-                if (file.Exists)
-                {
-                    file.Delete();
-                }
-                using var fileStream = new FileStream(filePath, FileMode.Create); // Create the file
-                createProductDto.Image.CopyTo(fileStream); // Copy the uploaded image to the file stream
-                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}"; // Get the base URL of the request
-                product.ImgUrl = $"{baseUrl}/ProductsImages/{fileName}"; // Set the ImgUrl property
-                product.ImgUrlLocal = filePath; // Set the local file path
+                UploadProductImage(createProductDto, product);
             } else
             {
                 product.ImgUrl = "https://placehold.co/600x400"; 
@@ -203,25 +186,9 @@ namespace ApiEcommerce.Controllers
             // * Update image
             if(updateProductDto.Image != null)
             {
-                string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(updateProductDto.Image.FileName);
-                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
-                if (!Directory.Exists(imagesFolder))
-                {
-                    Directory.CreateDirectory(imagesFolder);
-                }
-
-                var filePath = Path.Combine(imagesFolder, fileName);
-                FileInfo file = new(filePath);
-                if (file.Exists)
-                {
-                    file.Delete();
-                }
-                using var fileStream = new FileStream(filePath, FileMode.Create); // Create the file
-                updateProductDto.Image.CopyTo(fileStream); // Copy the uploaded image to the file stream
-                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}"; // Get the base URL of the request
-                product.ImgUrl = $"{baseUrl}/ProductsImages/{fileName}"; // Set the ImgUrl property
-                product.ImgUrlLocal = filePath; // Set the local file path
-            } else
+                UploadProductImage(updateProductDto, product);
+            }
+            else
             {
                 product.ImgUrl = "https://placehold.co/600x400"; 
             }
@@ -233,6 +200,28 @@ namespace ApiEcommerce.Controllers
             }
 
             return NoContent(); // return 204
+        }
+
+        private void UploadProductImage(dynamic productDto, Product product)
+        {
+            string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(productDto.Image.FileName);
+            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProductsImages");
+            if (!Directory.Exists(imagesFolder))
+            {
+                Directory.CreateDirectory(imagesFolder);
+            }
+
+            var filePath = Path.Combine(imagesFolder, fileName);
+            FileInfo file = new(filePath);
+            if (file.Exists)
+            {
+                file.Delete();
+            }
+            using var fileStream = new FileStream(filePath, FileMode.Create); // Create the file
+            productDto.Image.CopyTo(fileStream); // Copy the uploaded image to the file stream
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}"; // Get the base URL of the request
+            product.ImgUrl = $"{baseUrl}/ProductsImages/{fileName}"; // Set the ImgUrl property
+            product.ImgUrlLocal = filePath; // Set the local file path
         }
 
         [HttpDelete("{ProductId:int}", Name = "DeleteProduct")]

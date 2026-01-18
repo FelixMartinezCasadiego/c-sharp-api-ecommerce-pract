@@ -161,6 +161,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles(); // Enable static files middleware
+
 app.UseCors(PolicyNames.AllowSpecificOrigin); // Use CORS policy
 
 app.UseResponseCaching(); // Use response caching

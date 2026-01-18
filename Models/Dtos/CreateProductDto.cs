@@ -5,7 +5,8 @@ public class CreateProductDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
-    public string ImgUrl { get; set; } = string.Empty;
+    public string? ImgUrl { get; set; }
+    public IFormFile? Image { get; set; } // For uploading the image file
     public string SKU { get; set; } = string.Empty; // Stock Keeping Unit -> PROD-001-BLK-M
     public int StockQuantity { get; set; }
     public DateTime? UpdateDate { get; set; } = null;

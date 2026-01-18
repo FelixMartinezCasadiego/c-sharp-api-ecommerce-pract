@@ -6,7 +6,8 @@ public class ProductDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
-    public string ImgUrl { get; set; } = string.Empty;
+    public string? ImgUrl { get; set; }
+    public string? ImgUrlLocal { get; set; }
     public string SKU { get; set; } = string.Empty; // Stock Keeping Unit -> PROD-001-BLK-M
     public int StockQuantity { get; set; }
     public DateTime CreationDate { get; set; } = DateTime.Now;

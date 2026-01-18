@@ -47,6 +47,46 @@ Esta instrucción permite que el servidor web sirva archivos desde la carpeta `w
      https://tudominio.com/nombre-del-archivo.jpg
      ```
 
+## Ejemplo avanzado: Guardar imágenes de productos
+
+En el archivo `ProductsController.cs` se implementó una lógica para guardar imágenes subidas en una carpeta específica (`wwwroot/ProductsImages`) y construir la URL pública y local del archivo:
+
+```csharp
+if(createProductDto.Image != null)
+{
+    string fileName = product.ProductId + Guid.NewGuid().ToString() + Path.GetExtension(createProductDto.Image.FileName);
+    var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","ProductsImages");
+    if (!Directory.Exists(imagesFolder))
+    {
+        Directory.CreateDirectory(imagesFolder);
+    }
+
+    var filePath = Path.Combine(imagesFolder, fileName);
+    FileInfo file = new(filePath);
+    if (file.Exists)
+    {
+        file.Delete();
+    }
+    using var fileStream = new FileStream(filePath, FileMode.Create); // Crear el archivo
+    createProductDto.Image.CopyTo(fileStream); // Copiar la imagen subida al stream
+    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}"; // Obtener la URL base de la petición
+    product.ImgUrl = $"{baseUrl}/ProductsImages/{fileName}"; // Asignar la URL pública
+    product.ImgUrlLocal = filePath; // Asignar la ruta local
+} else
+{
+    product.ImgUrl = "https://placehold.co/600x400";
+}
+```
+
+**Notas:**
+
+- Se crea la carpeta `ProductsImages` si no existe.
+- Se elimina el archivo anterior si existe para evitar duplicados.
+- Se genera una URL pública para acceder a la imagen desde el navegador.
+- Si no se sube imagen, se asigna una imagen por defecto.
+
+Esta lógica permite gestionar imágenes de productos de forma segura y accesible desde la web.
+
 ## Consideraciones de Seguridad
 
 - Valida el tipo y tamaño de los archivos antes de guardarlos.

@@ -19,6 +19,12 @@ public class Product
     public string SKU { get; set; } = string.Empty; // Stock Keeping Unit -> PROD-001-BLK-M
     [Range(0, int.MaxValue)]
     public int StockQuantity { get; set; }
+    [NotMapped]
+    public int Stock
+    {
+        get => StockQuantity;
+        set => StockQuantity = value;
+    }
     public DateTime CreationDate { get; set; } = DateTime.Now;
     public DateTime? UpdateDate { get; set; } = null;
 
